@@ -1,8 +1,6 @@
 # listen_process_exporter-exporter
 Prometheus exporter that mines /proc to report on selected processes.
-
-[release]: https://github.com/qianxiansheng90/listen_process_exporter/releases/latest
-
+Support collect listen port process ,such as mysql、postgresql、nginx、ssh and so on.
 
 ## Attention
 **Only support Linux System**
@@ -157,3 +155,6 @@ listen_port_process_write_bytes_total{listen_port="3306",pid="438332"} 1.9570688
 # TYPE listen_port_process_write_calls_total counter
 listen_port_process_write_calls_total{listen_port="3306",pid="438332"} 158
 ```
+
+## Thanks
+This project is inspired by [process-exporter](https://github.com/ncabatoff/process-exporter).
