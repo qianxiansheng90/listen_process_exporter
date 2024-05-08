@@ -82,14 +82,9 @@ var (
 		"number of open file descriptors for this group",
 		[]string{listenPort, listProcessPID}, nil)
 
-	worstFDRatioDesc = prometheus.NewDesc(
-		"listen_port_process_worst_fd_ratio",
-		"the worst (closest to 1) ratio between open fds and max fds among all procs in this group",
-		[]string{listenPort, listProcessPID}, nil)
-
 	startTimeDesc = prometheus.NewDesc(
 		"listen_port_process_oldest_start_time_seconds",
-		"start time in seconds since 1970/01/01 of oldest process in group",
+		"start time in seconds since 1970/01/01 of listen process",
 		[]string{listenPort, listProcessPID}, nil)
 
 	scrapeErrorsDesc = prometheus.NewDesc(
@@ -125,7 +120,6 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- writeCallsDesc
 	ch <- memBytesDesc
 	ch <- openFDsDesc
-	ch <- worstFDRatioDesc
 	ch <- startTimeDesc
 	ch <- majorPageFaultsDesc
 	ch <- minorPageFaultsDesc
@@ -150,7 +144,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		log.Printf("query listen port %d pid %d error: %v", e.listenPort, listenProcess.Pid, err)
 		return
 	}
-	ch <- prometheus.MustNewConstMetric(numThreadDesc,
+	ch <- prometheus.MustNewConstMetric(startTimeDesc,
 		prometheus.GaugeValue, float64(processStats.Stat.Starttime),
 		listenPortToString(listenProcess.Port), listenProcessPIDToString(listenProcess.Pid))
 

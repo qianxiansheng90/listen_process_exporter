@@ -10,6 +10,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"listen_process_exporter/comm"
 	"listen_process_exporter/exporter"
 	"listen_process_exporter/handler"
 	"listen_process_exporter/listen_process"
@@ -23,13 +24,19 @@ var (
 	collectChildProcess          = flag.Bool("collector.child", false, "Enable the collect child process (default: disable).")
 	refreshListenProcessInterval = flag.Int("collector.refresh", 60, "Refresh listen process interval second (default: 60s).")
 	collectListenPort            = flag.Int("collector.port", 3306, "Collect listen port (default: 3306).")
+	debug                        = flag.Bool("collector.debug", false, "Enable debug mode.")
 )
 
 func main() {
 	flag.Parse()
 	if *refreshListenProcessInterval < 5 {
-		log.Printf("Error: collector.refresh too small (%ds)", *refreshListenProcessInterval)
-		return
+		if *refreshListenProcessInterval != listen_process.ForbidInterval {
+			log.Printf("Error: collector.refresh too small (%ds)", *refreshListenProcessInterval)
+			return
+		}
+	}
+	if *debug {
+		comm.SetDebug(*debug)
 	}
 	newExporter := exporter.NewExporter(*collectChildProcess, *collectListenPort)
 	prometheus.MustRegister(newExporter)
@@ -42,6 +49,7 @@ func main() {
 
 	http.Handle(*metricsPath, promhttp.Handler())
 	http.HandleFunc("/probe", handler.HandleProbe(*collectChildProcess))
+	http.HandleFunc("/refresh_listen_process", handler.HandleRefreshListenProcess())
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
@@ -52,5 +60,6 @@ func main() {
              </body>
              </html>`))
 	})
+	log.Printf("Listening on %s", *listenAddress)
 	log.Fatal(http.ListenAndServe(*listenAddress, nil))
 }

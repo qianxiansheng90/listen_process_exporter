@@ -5,3 +5,18 @@
  * @Description: desc
  */
 package comm
+
+import "log"
+
+var (
+	debug = false
+)
+
+func SetDebug(de bool) {
+	debug = de
+	log.Printf("set debug = %v", de)
+}
+
+func Debug() bool {
+	return debug
+}

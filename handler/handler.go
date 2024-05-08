@@ -7,13 +7,18 @@
 package handler
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"listen_process_exporter/comm"
 	"listen_process_exporter/exporter"
+	"listen_process_exporter/listen_process"
 )
 
 func HandleProbe(collectChildProcess bool) http.HandlerFunc {
@@ -35,5 +40,24 @@ func HandleProbe(collectChildProcess bool) http.HandlerFunc {
 
 		h := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
 		h.ServeHTTP(w, r)
+	}
+}
+
+/*
+ *  @Description: refresh listen process through http
+ */
+func HandleRefreshListenProcess() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if comm.Debug() {
+			log.Printf("refresh listen process through http request")
+		}
+		listenProcess, err := listen_process.RefreshListenProcess(context.TODO())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			log.Printf("refresh listen process fail: %v", err)
+			return
+		}
+		listenProcesslistJson, _ := json.Marshal(listenProcess)
+		http.Error(w, string(listenProcesslistJson), http.StatusOK)
 	}
 }
