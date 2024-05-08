@@ -12,7 +12,6 @@ import (
 )
 
 const (
-	namespace      = "listen_process"
 	listenPort     = "listen_port"
 	listProcessPID = "pid"
 	// See https://github.com/prometheus/procfs/blob/master/proc_stat.go for details on userHZ.
