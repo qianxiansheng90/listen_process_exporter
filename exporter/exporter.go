@@ -85,21 +85,6 @@ var (
 		"listen_port_process_oldest_start_time_seconds",
 		"start time in seconds since 1970/01/01 of listen process",
 		[]string{listenPort, listProcessPID}, nil)
-
-	scrapeErrorsDesc = prometheus.NewDesc(
-		"listen_port_process_scrape_errors",
-		"general scrape errors: no proc metrics collected during a cycle",
-		nil, nil)
-
-	scrapeProcReadErrorsDesc = prometheus.NewDesc(
-		"listen_port_process_scrape_procread_errors",
-		"incremented each time a proc's metrics collection fails",
-		nil, nil)
-
-	scrapePartialErrorsDesc = prometheus.NewDesc(
-		"listen_port_process_scrape_partial_errors",
-		"incremented each time a tracked proc's metrics collection fails partially, e.g. unreadable I/O stats",
-		nil, nil)
 )
 
 func NewExporter(collectChildProcess bool, listenPort int) *Exporter {
@@ -123,9 +108,6 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- majorPageFaultsDesc
 	ch <- minorPageFaultsDesc
 	ch <- contextSwitchesDesc
-	ch <- scrapeErrorsDesc
-	ch <- scrapeProcReadErrorsDesc
-	ch <- scrapePartialErrorsDesc
 }
 
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {

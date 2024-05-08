@@ -21,7 +21,7 @@ var (
 		"Addresses on which to expose metrics and web")
 	metricsPath = flag.String("web.telemetry-path", "/metrics",
 		"Path under which to expose metrics")
-	collectChildProcess          = flag.Bool("collector.child", false, "Enable the collect child process (default: disable).")
+	//collectChildProcess          = flag.Bool("collector.child", false, "Enable the collect child process (default: disable).")
 	refreshListenProcessInterval = flag.Int("collector.refresh", 60, "Refresh listen process interval second (default: 60s).")
 	collectListenPort            = flag.Int("collector.port", 3306, "Collect listen port (default: 3306).")
 	debug                        = flag.Bool("collector.debug", false, "Enable debug mode.")
@@ -38,7 +38,7 @@ func main() {
 	if *debug {
 		comm.SetDebug(*debug)
 	}
-	newExporter := exporter.NewExporter(*collectChildProcess, *collectListenPort)
+	newExporter := exporter.NewExporter(false, *collectListenPort)
 	prometheus.MustRegister(newExporter)
 
 	if err := listen_process.SetTickerInterval(*refreshListenProcessInterval); err != nil {
@@ -48,7 +48,7 @@ func main() {
 	go listen_process.RefreshListenProcessGoroutine()
 
 	http.Handle(*metricsPath, promhttp.Handler())
-	http.HandleFunc("/probe", handler.HandleProbe(*collectChildProcess))
+	http.HandleFunc("/probe", handler.HandleProbe(false))
 	http.HandleFunc("/refresh_listen_process", handler.HandleRefreshListenProcess())
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
