@@ -49,7 +49,7 @@ func HandleProbe(collectChildProcess bool) http.HandlerFunc {
 func HandleRefreshListenProcess() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if comm.Debug() {
-			log.Printf("refresh listen process through http request")
+			log.Printf("refresh listen process through http request %s", r.RemoteAddr)
 		}
 		listenProcess, err := listen_process.RefreshListenProcess(context.TODO())
 		if err != nil {
