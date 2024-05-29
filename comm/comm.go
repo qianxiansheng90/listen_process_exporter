@@ -8,6 +8,10 @@ package comm
 
 import "log"
 
+const (
+	Version = "1.1.0"
+)
+
 var (
 	debug = false
 )

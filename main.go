@@ -5,6 +5,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -17,6 +18,7 @@ import (
 )
 
 var (
+	version       = flag.Bool("version", false, "Print version information.")
 	listenAddress = flag.String("web.listen-address", ":9911",
 		"Addresses on which to expose metrics and web")
 	metricsPath = flag.String("web.telemetry-path", "/metrics",
@@ -29,6 +31,10 @@ var (
 
 func main() {
 	flag.Parse()
+	if *version {
+		fmt.Println(comm.Version)
+		return
+	}
 	if *refreshListenProcessInterval < 5 {
 		if *refreshListenProcessInterval != listen_process.ForbidInterval {
 			log.Printf("Error: collector.refresh too small (%ds)", *refreshListenProcessInterval)
