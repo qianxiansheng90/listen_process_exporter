@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	linuxproc "github.com/c9s/goprocinfo/linux"
+	"listen_process_exporter/comm"
 )
 
 const (
@@ -47,15 +48,27 @@ func collectProcessStat(ctx context.Context, pid int32) (processStats ProcessSta
 	}
 
 	if io, err = linuxproc.ReadProcessIO(filepath.Join(p, "io")); err != nil {
+		if comm.Debug() {
+			log.Printf("collect process [%d] io error %v", pid, err)
+		}
 		io = &linuxproc.ProcessIO{}
 	}
 	if stat, err = linuxproc.ReadProcessStat(filepath.Join(p, "stat")); err != nil {
+		if comm.Debug() {
+			log.Printf("collect process [%d] stat error %v", pid, err)
+		}
 		stat = &linuxproc.ProcessStat{}
 	}
 	if statm, err = linuxproc.ReadProcessStatm(filepath.Join(p, "statm")); err != nil {
+		if comm.Debug() {
+			log.Printf("collect process [%d] statm error %v", pid, err)
+		}
 		statm = &linuxproc.ProcessStatm{}
 	}
 	if status, err = linuxproc.ReadProcessStatus(filepath.Join(p, "status")); err != nil {
+		if comm.Debug() {
+			log.Printf("collect process [%d] status error %v", pid, err)
+		}
 		status = &linuxproc.ProcessStatus{}
 	}
 	// not used
@@ -63,7 +76,9 @@ func collectProcessStat(ctx context.Context, pid int32) (processStats ProcessSta
 	//	schedule = &linuxproc.ProcessSchedStat{}
 	//}
 	if names, err = fileDescriptors(filepath.Join(p, "fd")); err != nil {
-		log.Printf("read fd: %v", err)
+		if comm.Debug() {
+			log.Printf("collect process [%d] read fd error %v", pid, err)
+		}
 	}
 
 	processStats = ProcessStats{
