@@ -45,8 +45,6 @@ func main() {
 	if *debug {
 		comm.SetDebug(*debug)
 	}
-	newExporter := exporter.NewExporter(false, *collectListenPort)
-	prometheus.MustRegister(newExporter)
 
 	handlerFunc := newHandler()
 	http.Handle(*metricsPath, promhttp.InstrumentMetricHandler(prometheus.DefaultRegisterer, handlerFunc))
