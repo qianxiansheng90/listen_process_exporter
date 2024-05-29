@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -47,13 +48,16 @@ func main() {
 	newExporter := exporter.NewExporter(false, *collectListenPort)
 	prometheus.MustRegister(newExporter)
 
+	handlerFunc := newHandler()
+	http.Handle(*metricsPath, promhttp.InstrumentMetricHandler(prometheus.DefaultRegisterer, handlerFunc))
+
 	if err := listen_process.SetTickerInterval(*refreshListenProcessInterval); err != nil {
 		log.Fatal(err)
 		return
 	}
 	go listen_process.RefreshListenProcessGoroutine()
 
-	http.Handle(*metricsPath, promhttp.Handler())
+	//http.Handle(*metricsPath, promhttp.Handler())
 	http.HandleFunc("/probe", handler.HandleProbe(false))
 	http.HandleFunc("/refresh_listen_process", handler.HandleRefreshListenProcess())
 
@@ -68,4 +72,30 @@ func main() {
 	})
 	log.Printf("Listening on %s", *listenAddress)
 	log.Fatal(http.ListenAndServe(*listenAddress, nil))
+}
+
+func newHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var err error
+		target := strconv.Itoa(*collectListenPort)
+		q := r.URL.Query()
+		if q.Has("target") {
+			target = q.Get("target")
+		}
+		listenPort, err := strconv.Atoi(target)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("target[%s] must be number", target), http.StatusBadRequest)
+			return
+		}
+		registry := prometheus.NewRegistry()
+		registry.MustRegister(exporter.NewExporter(false, listenPort))
+
+		gatherers := prometheus.Gatherers{
+			prometheus.DefaultGatherer,
+			registry,
+		}
+		// Delegate http serving to Prometheus client library, which will call collector.Collect.
+		h := promhttp.HandlerFor(gatherers, promhttp.HandlerOpts{})
+		h.ServeHTTP(w, r)
+	}
 }
