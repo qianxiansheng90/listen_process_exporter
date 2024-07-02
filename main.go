@@ -49,6 +49,8 @@ func main() {
 	handlerFunc := newHandler()
 	http.Handle(*metricsPath, promhttp.InstrumentMetricHandler(prometheus.DefaultRegisterer, handlerFunc))
 
+	http.Handle("/health", handler.Health())
+
 	if err := listen_process.SetTickerInterval(*refreshListenProcessInterval); err != nil {
 		log.Fatal(err)
 		return
