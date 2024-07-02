@@ -10,10 +10,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
-)
 
-const (
-	binVersion = "1.0"
+	"listen_process_exporter/comm"
 )
 
 type HTTPResponse struct {
@@ -30,7 +28,7 @@ func Health() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var data, _ = json.Marshal(HTTPResponse{
 			Code: "success",
-			Msg:  binVersion,
+			Msg:  comm.Version,
 			Data: struct {
 				Hostname string `json:"hostname"`
 			}{
