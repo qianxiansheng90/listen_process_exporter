@@ -1,9 +1,3 @@
-/*
- * Copyright (c) 2011 Qunar.com. All Rights Reserved.
- * @Author: fangyuan.qian
- * @Create: 2024-07-02 15:01:04
- * @Description: desc
- */
 package handler
 
 import (
