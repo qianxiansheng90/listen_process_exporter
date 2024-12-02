@@ -56,7 +56,7 @@ func collectListenProcess(ctx context.Context) (processList map[uint32]ListenPro
 	for k, v := range lpArr6 {
 		processList[k] = v
 	}
-	return lpArr, err
+	return processList, err
 }
 
 /*
