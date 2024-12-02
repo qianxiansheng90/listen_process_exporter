@@ -9,7 +9,7 @@ package comm
 import "log"
 
 const (
-	Version = "1.5.0"
+	Version = "1.6.0"
 )
 
 var (
